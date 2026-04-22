@@ -203,7 +203,9 @@ Surface makeGenCyl(const Curve &profile, const Curve &sweep)
             const Vector3f p = profile[i].V;
             const Vector3f pWorld = V + p[0] * N + p[1] * B + p[2] * T;
 
-            Vector3f n = profile[i].N;
+            // Keep swept-surface normals facing outward; profile normals are
+            // defined in 2D curve convention and need a flip here.
+            Vector3f n = -profile[i].N;
             Vector3f nWorld = n[0] * N + n[1] * B + n[2] * T;
             if (isNearZero(nWorld))
                 nWorld = N;
