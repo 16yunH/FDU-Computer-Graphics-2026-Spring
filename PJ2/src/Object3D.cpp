@@ -1,4 +1,5 @@
 #include "Object3D.h"
+#include "VecUtils.h"
 
 bool Sphere::intersect(const Ray &r, float tmin, Hit &h) const
 {
@@ -78,27 +79,62 @@ bool Group::intersect(const Ray &r, float tmin, Hit &h) const
 }
 
 
-Plane::Plane(const Vector3f &normal, float d, Material *m) : Object3D(m) {
-    // TODO implement Plane constructor
+Plane::Plane(const Vector3f &normal, float d, Material *m) : Object3D(m), _normal(normal.normalized()), _d(d) {
 }
 bool Plane::intersect(const Ray &r, float tmin, Hit &h) const
 {
-    // TODO implement
-    return false;
+    float denom = Vector3f::dot(_normal, r.getDirection());
+    if (fabs(denom) < 1e-6) return false;
+    float t = (_d - Vector3f::dot(_normal, r.getOrigin())) / denom;
+    if (t < tmin || t >= h.getT()) return false;
+    Vector3f normal = _normal;
+    if (denom > 0) normal = -normal;
+    h.set(t, material, normal);
+    return true;
 }
 bool Triangle::intersect(const Ray &r, float tmin, Hit &h) const 
 {
-    // TODO implement
-    return false;
+    Vector3f E1 = _v[1] - _v[0];
+    Vector3f E2 = _v[2] - _v[0];
+    Vector3f S = r.getOrigin() - _v[0];
+    Vector3f D = r.getDirection();
+
+    Vector3f SxE1 = Vector3f::cross(S, E1);
+    Vector3f DxE2 = Vector3f::cross(D, E2);
+    float denom = Vector3f::dot(DxE2, E1);
+    if (fabs(denom) < 1e-8) return false;
+
+    float invDenom = 1.0f / denom;
+    float t = Vector3f::dot(SxE1, E2) * invDenom;
+    float b1 = Vector3f::dot(DxE2, S) * invDenom;
+    float b2 = Vector3f::dot(SxE1, D) * invDenom;
+    float b0 = 1.0f - b1 - b2;
+
+    if (b0 < 0 || b1 < 0 || b2 < 0) return false;
+    if (t < tmin || t >= h.getT()) return false;
+
+    Vector3f normal = (b0 * _normals[0] + b1 * _normals[1] + b2 * _normals[2]).normalized();
+    h.set(t, material, normal);
+    return true;
 }
 
 
 Transform::Transform(const Matrix4f &m,
-    Object3D *obj) : _object(obj) {
-    // TODO implement Transform constructor
+    Object3D *obj) : _object(obj), _matrix(m), _inverseMatrix(m.inverse()), _inverseTransposeMatrix(m.inverse().transposed()) {
 }
 bool Transform::intersect(const Ray &r, float tmin, Hit &h) const
 {
-    // TODO implement
-    return false;
+    Vector3f origin = VecUtils::transformPoint(_inverseMatrix, r.getOrigin());
+    Vector3f dir = VecUtils::transformDirection(_inverseMatrix, r.getDirection());
+    Ray localRay(origin, dir);
+
+    Hit localHit;
+    if (!_object->intersect(localRay, tmin, localHit)) return false;
+
+    float t = localHit.getT();
+    Vector3f worldNormal = VecUtils::transformDirection(_inverseTransposeMatrix, localHit.getNormal()).normalized();
+
+    if (t >= h.getT()) return false;
+    h.set(t, localHit.getMaterial(), worldNormal);
+    return true;
 }

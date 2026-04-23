@@ -13,12 +13,14 @@
         distToLight = std::numeric_limits<float>::max();
         // END STARTER
     }
-    void PointLight::getIllumination(const Vector3f &p, 
-                                 Vector3f &tolight, 
-                                 Vector3f &intensity, 
+    void PointLight::getIllumination(const Vector3f &p,
+                                 Vector3f &tolight,
+                                 Vector3f &intensity,
                                  float &distToLight) const
     {
-        // TODO Implement point light source
-        // tolight, intensity, distToLight are outputs
+        Vector3f dir = _position - p;
+        distToLight = dir.abs();
+        tolight = dir.normalized();
+        intensity = _color / (_falloff * distToLight * distToLight);
     }
 

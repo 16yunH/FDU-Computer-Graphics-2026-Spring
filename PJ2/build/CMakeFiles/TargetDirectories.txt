@@ -1,0 +1,6 @@
+/Users/bytedance/personal code/FDU-Computer-Graphics-2026-Spring/PJ2/build/CMakeFiles/a2.dir
+/Users/bytedance/personal code/FDU-Computer-Graphics-2026-Spring/PJ2/build/CMakeFiles/edit_cache.dir
+/Users/bytedance/personal code/FDU-Computer-Graphics-2026-Spring/PJ2/build/CMakeFiles/rebuild_cache.dir
+/Users/bytedance/personal code/FDU-Computer-Graphics-2026-Spring/PJ2/build/vecmath/CMakeFiles/vecmath.dir
+/Users/bytedance/personal code/FDU-Computer-Graphics-2026-Spring/PJ2/build/vecmath/CMakeFiles/edit_cache.dir
+/Users/bytedance/personal code/FDU-Computer-Graphics-2026-Spring/PJ2/build/vecmath/CMakeFiles/rebuild_cache.dir
